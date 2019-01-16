@@ -18,7 +18,12 @@ public class ExceptionsLesson {
      * методом {@link Logger#log(String)}.
      */
     public void logException(SomeService service, Logger log) {
-
+        try {
+            service.doSomething();
+        } catch (IOException e) {
+//            e.printStackTrace();
+            log.log(e.getMessage());
+        }
     }
 
     /**
@@ -32,7 +37,15 @@ public class ExceptionsLesson {
      * методом {@link SomeService#closeConnection()}
      */
     public void closeConnection(SomeService service, Logger log) {
+        try {
+            service.doSomething();
+        } catch (IOException e) {
+            log.log(e.getMessage());
 
+        }
+        finally {
+            service.closeConnection();
+        }
     }
 
     /**
@@ -44,7 +57,16 @@ public class ExceptionsLesson {
      * Изучите распечатаный стек вызовов в логе вывода тестов.
      */
     public void getStackTrace(SomeService service, Logger log) {
+        try {
+            getStackTraceDeeper(service);
+        } catch (Exception e) {
 
+            StackTraceElement[] trace = e.getStackTrace();
+            for (StackTraceElement aTrace : trace) {
+                log.log(aTrace.toString());
+            }
+
+        }
     }
     private void getStackTraceDeeper(SomeService service) throws IOException {
         getStackTraceEvenDeeper(service);
@@ -73,6 +95,15 @@ public class ExceptionsLesson {
      * исключения не предназначены для описания стандартного поведения программы!
      */
     public void showMeTheWay(SomeService service, Logger log){
+        try {
+            service.showMeTheWay();
+        } catch (BoyException e) {
+            log.log(RIGHT);
+        } catch (GirlException e) {
+            log.log(LEFT);
+        } catch (ChildException e) {
+            log.log(UNKNOWN);
+        }
 
     }
 
@@ -89,7 +120,11 @@ public class ExceptionsLesson {
      * метод выбрасывал исключение типа {@link Exception} с сообщением {@link #ENDS_WITH_ZERO}
      */
     public static class Thrower {
-
+        public void doIt(int i) throws Exception {
+            if (i % 10 == 0) {
+                throw new Exception(ENDS_WITH_ZERO);
+            }
+        }
     }
 
     public static final String ENDS_WITH_ZERO = "ААААА!! Ноль на конце!";
@@ -108,11 +143,21 @@ public class ExceptionsLesson {
      * В методе {@link #helloWorldException} выбросьте получившееся исключение
      * с кодом ошибки {@link #THROW_THE_WORLD_CODE} и с сообщением {@link #THROW_THE_WORLD_MSG}
      */
-    public void helloWorldException() {
-
+    public void helloWorldException() throws HelloWorldException {
+        throw new HelloWorldException(THROW_THE_WORLD_MSG, THROW_THE_WORLD_CODE);
     }
 
     // Тут должно быть ваше исключение
+    public class HelloWorldException extends Exception {
+        public int ErrorCode;
+        public HelloWorldException(String message, int code ) {
+            super(message);
+            this.ErrorCode = code;
+        }
+        public int getErrorCode() {
+            return this.ErrorCode;
+        }
+    }
 
     public static final int THROW_THE_WORLD_CODE = 777;
     public static final String THROW_THE_WORLD_MSG = "Pew! Pew!";
@@ -140,7 +185,23 @@ public class ExceptionsLesson {
      * верните {@code null}, а сообщение об ошибке запишите в лог.
      */
     public String closeResource(OldConnection c, Logger log) {
+
+        OldSession session = null;
         String data = null;
+        try {
+            session = c.createSession();
+            data = session.getData();
+            session.close();
+        } catch (IOException e) {
+            log.log(e.getMessage());
+        }
+
+
+        try {
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return data;
     }
