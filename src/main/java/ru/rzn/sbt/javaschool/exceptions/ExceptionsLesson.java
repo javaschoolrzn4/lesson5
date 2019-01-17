@@ -191,18 +191,17 @@ public class ExceptionsLesson {
         try {
             session = c.createSession();
             data = session.getData();
-            session.close();
         } catch (IOException e) {
             log.log(e.getMessage());
+        } finally {
+            if (session != null) {
+                try {
+                    session.close();
+                } catch (IOException e) {
+                    log.log(e.getMessage());
+                }
+            }
         }
-
-
-        try {
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         return data;
     }
 
@@ -215,7 +214,11 @@ public class ExceptionsLesson {
      */
     public String autocloseResource(Connection c, Logger log) {
         String data = null;
-
+        try (Session s = c.createSession()) {
+            data = s.getData();
+        } catch (IOException e) {
+            log.log(e.getMessage());
+        }
         return data;
     }
 
@@ -263,5 +266,6 @@ public class ExceptionsLesson {
      * в качестве причины.
      */
     public void helloBarbara() {
+
     }
 }
