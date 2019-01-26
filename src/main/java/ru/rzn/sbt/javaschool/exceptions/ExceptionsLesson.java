@@ -169,7 +169,9 @@ public class ExceptionsLesson {
      */
     public String callMe() {
         String caller = null;
-
+        Exception e = new Exception();
+        StackTraceElement[] trace = e.getStackTrace();
+        caller = trace[1].getMethodName();
         return caller;
     }
 
@@ -236,6 +238,30 @@ public class ExceptionsLesson {
      */
     public String closeEverything(OldConnectionFactory cf, Logger log) {
         String data = null;
+        OldSession session = null;
+        OldConnection conn = null;
+        try {
+            conn = cf.createConnection();
+            session = conn.createSession();
+            data = session.getData();
+        } catch (IOException e) {
+            log.log(e.getMessage());
+        } finally {
+            if (session != null) {
+                try {
+                    session.close();
+                } catch (IOException e) {
+                    log.log(e.getMessage());
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (IOException e) {
+                    log.log(e.getMessage());
+                }
+            }
+        }
 
         return data;
     }
@@ -249,7 +275,14 @@ public class ExceptionsLesson {
      */
     public String autocloseEverything(ConnectionFactory cf, Logger log) {
         String data = null;
-
+        try (
+                Connection conn = cf.createConnection();
+                Session session = conn.createSession()
+        ) {
+            data = session.getData();
+        } catch (IOException e) {
+            log.log(e.getMessage());
+        }
         return data;
     }
 
